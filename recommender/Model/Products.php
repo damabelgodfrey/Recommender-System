@@ -1,6 +1,10 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'].'/ecommerce/core/DBh.php';
-class Products extends DBh{
+require_once $_SERVER['DOCUMENT_ROOT'].'/ecommerce/core/DB_PDO.php';
+/**
+ * handles all crud operations
+ */
+
+class Products extends DB_PDO{
 
   public function getProduct($id){
     $sql = "SELECT * FROM products WHERE id = ?";
@@ -9,7 +13,6 @@ class Products extends DBh{
     $results = $myQuerry->fetchAll();
     return $results;
   }
-
   public function getAllProducts(){
     $sql = "SELECT * FROM products";
     $myQuerry = $this->getConnection()->prepare($sql);
@@ -18,7 +21,7 @@ class Products extends DBh{
     return $results;
   }
 
-  protected function getGroupProduct($ids){
+  public function getGroupProduct($ids){
        $sql = "SELECT * FROM products WHERE id IN ($ids)
        ORDER BY FIELD(id, $ids)";
        $myQuerry = $this->getConnection()->prepare($sql);

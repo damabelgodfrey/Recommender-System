@@ -14,7 +14,7 @@ class UserBasedCFEngine
   private static $sim_Rating_product = array();
   private static $simSummation = array();
   private static $userMeanRating;
-  const SIMILARITY_THRESHOLD = 0.01; //set threshold to determine similar user
+  const SIMILARITY_THRESHOLD = 0.4; //set threshold to determine similar user
   public static function getPredict($simAlgorithm,$PredictionAlgoVariant,$allUserMatrix, $currentUser){
     self:: $sim_Rating_product = array();
     self::$simSummation =array();
@@ -36,12 +36,13 @@ class UserBasedCFEngine
             break;
 
             case 'AdjustedCosineSim':
-            $similarity = CF_AdjustedCosineSimilarity::conputeF_adjustedCosineSimilarity($allUserMatrix,$currentUser,$otherUser);
+            $similarity = CF_AdjustedCosineSimilarity::computeF_adjustedCosineSimilarity($allUserMatrix,$currentUser,$otherUser);
             break;
-            
+
             default:
             break;
           }
+          debugfilewriter('similarity between '.$currentUser.' and user '. $otherUser.' is '. $similarity."\n");
           if($similarity > self::SIMILARITY_THRESHOLD){ // store only similar user
             $UserNearestNeigbour[$otherUser] = $similarity;
             if ($PredictionAlgoVariant == "P1" ) {
@@ -82,6 +83,7 @@ class UserBasedCFEngine
         'product_id'       => $key,
         'predicted_rating' => $value,
       );
+    //  AccuracyTestMetric::computeRootMeanSqEst($currentUser,$allUserMatrix,$prediction);
     }
     $prediction = json_encode($predicted_rating);
     return $UserNearestNeigbour.'::'.$prediction;
@@ -89,7 +91,7 @@ class UserBasedCFEngine
   // compute the summation of the product of other user rating and similarity between this user and other user
   //compute the summaration of the similarity
   //Sim*RU1 and sum of simmilarity
-  public static function predictionP1($ExistingMatrix,$currentUser,$otherUser,$sim){
+  private static function predictionP1($ExistingMatrix,$currentUser,$otherUser,$sim){
     if(isset($ExistingMatrix[$currentUser])){
       foreach($ExistingMatrix[$otherUser] as $key=>$value){
         if(!array_key_exists($key,$ExistingMatrix[$currentUser])){
@@ -106,7 +108,7 @@ class UserBasedCFEngine
     }
   }
   //compute summation of Sim*RU1/sum of simmilarity
-  public static function computeRatingPredictionP1(){
+  private static function computeRatingPredictionP1(){
     $itemRatingPredictionArray = array();
     $sim_Rating_product =self::$sim_Rating_product;
     $simSummation= self::$simSummation;
@@ -117,11 +119,10 @@ class UserBasedCFEngine
 
     }
     arsort($itemRatingPredictionArray);
-    RootMeanSquareEstimation::computeRootMeanSqEst($itemRatingPredictionArray);
     return $itemRatingPredictionArray;
   }
 
-  public static function computeRatingPredictionP2(){
+  private static function computeRatingPredictionP2(){
     $itemRatingPredictionArray = array();
     $sim_Rating_product =self::$sim_Rating_product;
     $simSummation= self::$simSummation;
@@ -134,12 +135,10 @@ class UserBasedCFEngine
     }
 
     arsort($itemRatingPredictionArray);
-    debugfilewriter("\nRoot Mean Sqaure Estimation A2\n");
-    RootMeanSquareEstimation::computeRootMeanSqEst($itemRatingPredictionArray);
     return $itemRatingPredictionArray;
   }
 
-  public static function predictionP2($ExistingMatrix,$currentUser,$otherUser,$sim){
+  private static function predictionP2($ExistingMatrix,$currentUser,$otherUser,$sim){
     $otherUserCounter=0;
     $otherUserTotalRating = 0;
     $userCounter = 0;

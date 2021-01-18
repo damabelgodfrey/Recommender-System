@@ -1,15 +1,16 @@
 <?php
 /**
- *
+ * compute EuclideanDistance
  */
 class EuclideanDistance
 {
-  //conpute similarity distance only for similar user
+  //conpute similarity distance only for similar user or items
   public static function computeEuclideanDistance($UserRatingMatrix, $baseToken,$otherToken){
     $similar = array();
     $sum = 0;
     if(isset($UserRatingMatrix[$baseToken])){
-      foreach ($UserRatingMatrix[$baseToken] as $key => $value) { //check if user has purchase a product also purchased by user2
+      //can finter out number of co-rated item is considered to use user as nearest neighbor
+      foreach ($UserRatingMatrix[$baseToken] as $key => $value) { //if co-rated item exist
         if(array_key_exists($key,$UserRatingMatrix[$otherToken])){
             $similar[$key] = $value;
         }
@@ -27,21 +28,4 @@ class EuclideanDistance
       return false;
     }
   }
-
-  public static function computeEuclideanDistance2($UserRatingMatrix, $baseToken,$otherToken){
-    $similarRatingGrid = array();
-    $sumXY = 0;
-    if(isset($UserRatingMatrix[$baseToken])){
-        foreach ($UserRatingMatrix[$baseToken] as $key => $baseTokenRating) {
-          if(array_key_exists($key,$UserRatingMatrix[$otherToken])){
-               $xy = $baseTokenRating -  $UserRatingMatrix[$otherToken][$key];
-               $sumXY += pow($xy,2);
-          }
-        }
-
-     return 1/(1+sqrt($sumXY));
-    }else{
-      return false;
-    }
- }
 }

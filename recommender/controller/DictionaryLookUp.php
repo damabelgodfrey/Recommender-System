@@ -34,7 +34,8 @@ class DictionaryLookUp
    $wordArray = explode(' ', "$productTagKeywords");
    $result = array();
     foreach ($wordArray as $word) {
-      $synonymsArray= self::getSynonyms($word, $noOfSynonyms);
+      $returnResult =  self:: sendRequest($word);
+      $synonymsArray= self::processDictionaryOutput($returnResult, $noOfSynonyms);
       if($synonymsArray != null){
         foreach ($synonymsArray as $word) {
           $result[] = $word;
@@ -48,12 +49,15 @@ class DictionaryLookUp
 
   //process result return from server
   //extract key data
-  private static function getSynonyms($word,$noOfSynonyms){
-   $returnResult =  self:: sendRequest($word);
+  private static function processDictionaryOutput($returnResult,$noOfSynonyms){
    $returnInfo = self::$info;
    $similarTerm = array();
   if($returnInfo['http_code'] == 200) {
-    $my_wordList =  self::getresults($returnResult);
+    $my_wordList = array();
+      $results = json_decode($returnResult, true);
+      foreach ($results["response"] as $wordList) {
+       $my_wordList[] = explode('|',$wordList["list"]["synonyms"]);
+      }
     $genericTerm = array();
     $otherTerm = array();
     foreach ($my_wordList as $key =>$wordArray) {
@@ -86,15 +90,4 @@ class DictionaryLookUp
      return $similarTerm;
   }
 }
-
-  // decode the return result form thesaurus server into an associated array
-  // return array containg synonyms data for further processing.
-  private static function getresults($returnResult){
-  $my_wordList = array();
-    $results = json_decode($returnResult, true);
-    foreach ($results["response"] as $wordList) {
-     $my_wordList[] = explode('|',$wordList["list"]["synonyms"]);
-    }
-    return $my_wordList;
-  }
 }

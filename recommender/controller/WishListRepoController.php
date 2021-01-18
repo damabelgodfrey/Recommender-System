@@ -1,6 +1,11 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'].'/ecommerce/core/DBh.php';
-class WishListRepoController extends DBh{
+require_once $_SERVER['DOCUMENT_ROOT'].'/ecommerce/core/DB_PDO.php';
+/**
+ * Class handles all request from wishlist view
+ *  handles all wishlist operations.
+ */
+
+class WishListRepoController extends DB_PDO{
 
   public function insertWishlist($items_json, $user_name,$exp_time){
     $sql = "INSERT INTO wishlist (items,username,expire_date) VALUES (?,?,?)";

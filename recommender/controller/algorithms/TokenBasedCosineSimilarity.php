@@ -1,11 +1,10 @@
 <?php
-
+/**
+* Compute weighted cosine similarity using word vectors
+* @return cosine similarity
+*/
 class TokenBasedCosineSimilarity
 {
-    /**
-    *
-    *
-    */
     private static $item1Tokens = array();
     private static $item2Tokens = array();
     const CONTENT_WEIGHT = 0.75;
@@ -30,8 +29,6 @@ class TokenBasedCosineSimilarity
     }
     public static function getCBConsineSimilarity(&$item1Info, &$item2Info)
     {
-    //$item1Info1 =  "peter love love paul";
-    //$item2Info2 = "james love peter";
        self::tokenise($item1Info, $item2Info);
        $xToken = self::$item1Tokens;
        $yToken = self::$item2Tokens;
@@ -71,8 +68,6 @@ class TokenBasedCosineSimilarity
           return 0;
         }
         $cs = $a / sqrt($b * $c);
-    //    var_dump($cs);
-      	//return $a / sqrt($b * $c);
         return $cs;
     }
 

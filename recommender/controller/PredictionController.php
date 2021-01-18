@@ -1,10 +1,10 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'].'/ecommerce/core/DBh.php';
+require_once $_SERVER['DOCUMENT_ROOT'].'/ecommerce/core/DB_PDO.php';
 require_once $_SERVER['DOCUMENT_ROOT'].'/ecommerce/recommender/controller/UserController.php';
 /**
- *
+ * Handles all prediction CRUD operations
  */
-class PredictionController extends DBh{
+class PredictionController extends DB_PDO{
   //get prediction from database
   public function getPrediction($type,$userID){
     if($type == "ContentBased"){
@@ -87,6 +87,17 @@ class PredictionController extends DBh{
     $results = $myQuerry->fetchAll();
     return $results;
   }
+  //fetch all predictions from all recommender system
+  public function getAllCombinePrediction(){
+    $sql ="SELECT a.userID, a.cb_prediction, b.item_cf_prediction, c.user_cf_prediction
+            FROM content_based_recommendation a
+            LEFT JOIN item_based_cf_recommendation b ON a.userID = b.userID
+            LEFT JOIN user_based_cf_recommendation c ON a.userID = c.userID";
+    $myQuerry = $this->getConnection()->prepare($sql);
+    $myQuerry->execute();
+    $results = $myQuerry->fetchAll();
+    return $results;
+  }
   public function getLastRecommenderEngineRun(){
     $sql = "SELECT * FROM recommender_last_run";
     $myQuerry = $this->getConnection()->prepare($sql);
@@ -96,7 +107,8 @@ class PredictionController extends DBh{
   }
   public function updateRecLastRun($query){
     $myQuerry = $this->getConnection()->prepare($query);
-    $results = $myQuerry->execute([date("Y-m-d")]);
-    return $results;
+    //$results = $myQuerry->execute([date("Y-m-d")]);
+    //return $results;
+    return false;
   }
 }

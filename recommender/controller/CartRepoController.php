@@ -1,6 +1,10 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'].'/ecommerce/core/DBh.php';
-class cartRepoController extends DBh{
+require_once $_SERVER['DOCUMENT_ROOT'].'/ecommerce/core/DB_PDO.php';
+/**
+ * Class handles all request from cart view
+ *  handles all cart operations.
+ */
+class cartRepoController extends DB_PDO{
   public function insertCart($items_json, $user_id,$cart_expire,$exp_time){
     $sql = "INSERT INTO cart (items,userID,expire_date,exp_time) VALUES (?,?,?,?)";
     $myQuerry = $this->getConnection()->prepare($sql);

@@ -1,19 +1,21 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'].'/ecommerce/core/DBh.php';
+require_once $_SERVER['DOCUMENT_ROOT'].'/ecommerce/core/DB_PDO.php';
 require_once $_SERVER['DOCUMENT_ROOT'].'/ecommerce/recommender/controller/ProductController.php';
 /**
 * This class build item profile extracting relevant information from product repository and associated tables
 */
-class ItemProfiler extends DBh {
+class ItemProfiler extends DB_PDO {
   // compute item profile from product table
   public function buildItemProfile(){
     $noOfSynonysPerword = 2;
     $p_obj = new ProductController();
     $products = $p_obj->getAllProducts();
+    $b = json_encode($products);
+    debugfilewriter($products);
     $updated_time = date("Y-m-d h:i:s", time());
     $stopWord = getStopwordsFromFile();
     foreach ($products as $key => $product) {
-      $tags =DictionaryLookUp::requestAllSynonyms($product['p_keyword'],$noOfSynonysPerword);
+      $tags = DictionaryLookUp::requestAllSynonyms($product['p_keyword'],$noOfSynonysPerword);
       $itemProfileTokens= processContent($stopWord, $tags);
         $profiling[$product['id']] = array(
             'tag' => $itemProfileTokens,
@@ -21,6 +23,7 @@ class ItemProfiler extends DBh {
             'brand'=> $product['brand']
             );
     }
+    debugfilewriter($profiling);
     //a multi insertion of all products to item profile table with built querry
     $query = 'REPLACE INTO item_profile VALUES ';
     $query_parts = array();
@@ -29,7 +32,7 @@ class ItemProfiler extends DBh {
     }
      $query .= implode(',', $query_parts);
      $myQuerry = $this->getConnection()->exec($query);
-     return;
+     return $myQuerry;
   }
   // prepare item profile to update or delete
   public function addUpdateItemProfile($operation, $item_id,$tag,$category,$brand){
@@ -70,18 +73,18 @@ class ItemProfiler extends DBh {
   public function deleteItemProfile($item_id){
     $sql ="DELETE FROM item_profile WHERE itemID = ?";
     $myQuerry = $this->getConnection()->prepare($sql);
-    $myQuerry->execute([$item_id]);
+    return $myQuerry->execute([$item_id]);
   }
   // insert item profile
   private function insertProfile($item_id, $item_profile,$updated_time){
     $sql = "INSERT INTO item_profile (itemID,profile,last_updated) VALUES (?,?,?)";
     $myQuerry = $this->getConnection()->prepare($sql);
-    $myQuerry->execute([$item_id, $item_profile,$updated_time]);
+    return $myQuerry->execute([$item_id, $item_profile,$updated_time]);
   }
   //update user profile
   private function updateProfile($id, $profiling, $updated_time){
     $sql ="UPDATE item_profile SET profile = ?, last_updated = ? WHERE itemID = ?";
     $myQuerry = $this->getConnection()->prepare($sql);
-    $myQuerry->execute([$profiling, $updated_time,$id]);
+    return $myQuerry->execute([$profiling, $updated_time,$id]);
   }
 }

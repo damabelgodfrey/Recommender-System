@@ -1,7 +1,8 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'].'/ecommerce/recommender/Model/Transactions.php';
 /**
- *
+ *Handles all transaction communication and operations
+ * interact with transaction model and respond to transaction request
  */
 
 class TransactionController extends Transactions

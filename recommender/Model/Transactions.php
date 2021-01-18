@@ -1,9 +1,10 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'].'/ecommerce/core/DBh.php';
+require_once $_SERVER['DOCUMENT_ROOT'].'/ecommerce/core/DB_PDO.php';
 /**
- *
+ *  * Class handles all request from wishlist view
+  *  handles all wishlist operations.
  */
-class Transactions extends DBh
+class Transactions extends DB_PDO
 {
 
   public function getTransaction($user_email){

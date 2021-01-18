@@ -1,13 +1,16 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'].'/ecommerce/core/DBh.php';
-class Users extends DBh{
+require_once $_SERVER['DOCUMENT_ROOT'].'/ecommerce/core/DB_PDO.php';
+/**
+ *  handles all crud operations
+ */
+ class Users extends DB_PDO{
   //update user last log in
     public function setUserLogin($sql,$date,$user_id){
      $myQuerry = $this->getConnection()->prepare($sql);
      $myQuerry->execute([$date,$user_id]);
     }
     //select a system user
-  private function getUser($sql,$user_id){
+  protected function getUser($sql,$user_id){
     $myQuerry = $this->getConnection()->prepare($sql);
     $myQuerry->execute([$user_id]);
     $result = $myQuerry->fetchAll();
@@ -19,7 +22,7 @@ class Users extends DBh{
     $myQuerry->execute();
     return $myQuerry->fetchAll();
   }
-  public function getUserByEmail($sql,$email){
+  protected function getUserByEmail($sql,$email){
     $myQuerry = $this->getConnection()->prepare($sql);
     $myQuerry->execute([$email]);
     $results = $myQuerry->fetchAll();

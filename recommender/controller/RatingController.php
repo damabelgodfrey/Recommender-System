@@ -50,6 +50,12 @@ class RatingController extends Ratings{
       $this->updateRatings($sql,$rating_json,$updated_time,$user_id);
     }
   }
+  //low rated product not to be frofile for user
+  if(+$rating > 2){
+    $uObj = new UserProfiler();
+    $uObj->buildUserProfile($user_id, $product_id);
+  }
+
 }
 
 // Get product rating given to a product by a user

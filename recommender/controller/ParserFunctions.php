@@ -138,6 +138,6 @@ function cart_wishlist_update($mode,$db,$item,$cart_id,$user_id,$json_update,$ca
 }
   $rating = new RatingController();
   $rating->RateProduct($item[0]['id'],CART_WISH_RATING,$user_id,'cart_wish');
-  $profilling = new UserProfiller();
-  $profilling->buildUserProfile($user_id, $item[0]['id']);
+  $userP = new UserProfiler();
+  $userP->buildUserProfile($user_id, $item[0]['id']);
 }

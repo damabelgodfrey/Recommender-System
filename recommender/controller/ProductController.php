@@ -1,7 +1,8 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'].'/ecommerce/recommender/Model/Products.php';
 /**
- *
+ * Handles all product communication and operations
+ * interact with product model and respond to view request
  */
   class ProductController extends Products{
     // fetch group products from product table

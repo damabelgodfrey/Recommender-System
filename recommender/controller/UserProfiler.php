@@ -1,12 +1,12 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'].'/ecommerce/core/DBh.php';
+require_once $_SERVER['DOCUMENT_ROOT'].'/ecommerce/core/DB_PDO.php';
 require_once $_SERVER['DOCUMENT_ROOT'].'/ecommerce/recommender/controller/ProductController.php';
 /**
 * This class build user profile based on user activities on the system
 * weighted tokens is based on product description and tag.
 * purchase and add to cart and wishlist behaviour of user provide the specific item to be used to profile user
 */
-class UserProfiler extends DBh
+class UserProfiler extends DB_PDO
 
 {
   const WEIGHTTHRESHOLD = 3;  //max token weight
@@ -18,8 +18,7 @@ class UserProfiler extends DBh
     $buildUserProfileFlag = 0;
     foreach ($profiles as $key => $profile) {
       $existingProfiling = json_decode($profile['profile'],true);
-      $itemCatBrand = explode(',',$profile['itemID_cat_brand']);
-      $itemCatBrand = explode('::',$key);
+      $itemCatBrand = explode('::',$profile['itemID_cat_brand']);
       if(isset($itemCatBrand[0])){
         $item_ids =  explode(',',$itemCatBrand[0]);
       }
@@ -70,7 +69,7 @@ class UserProfiler extends DBh
         $itemCatBrand = $p_id.'::'.$category.'::'.$brand;
         $current_profiling;
         $updated_time = date("Y-m-d h:i:s", time());
-        $encodeProfilling = json_encode($finalCurrent_profile);
+        $encodeProfilling = json_encode($current_profiling);
         $this->insertProfile($user_id, $itemCatBrand, $encodeProfilling,$updated_time);
       }else{
         $_ids = implode(',', $item_ids);
@@ -140,16 +139,24 @@ class UserProfiler extends DBh
   }
   // insert user profile
   private function insertProfile($user_id, $ItemIDCatBrand, $user_profile,$updated_time){
-    $sql = "INSERT INTO user_profile (userID,last_updated,profile) VALUES (?,?,?,?)";
+    $sql = "INSERT INTO user_profile (userID,itemID_cat_brand, profile, last_updated) VALUES (?,?,?,?)";
     $myQuerry = $this->getConnection()->prepare($sql);
-    $myQuerry->execute([$user_id,$ItemIDCatBrand,$updated_time,$user_profile]);
+    $result = $myQuerry->execute([$user_id,$ItemIDCatBrand,$user_profile,$updated_time]);
+    return $result;
   }
 
   //update user profile
   private function updateProfile($user_id, $ItemIDCatBrand,$profile_json,$updated_time){
-    $sql ="UPDATE user_profile SET itemID_cat_brand, profile = ?, last_updated = ? WHERE userID = ?";
+    $sql ="UPDATE user_profile SET itemID_cat_brand =?, profile = ?, last_updated = ? WHERE userID = ?";
     $myQuerry = $this->getConnection()->prepare($sql);
     $myQuerry->execute([$ItemIDCatBrand, $profile_json,$updated_time,$user_id]);
+
+  }
+  //update user profile
+  private function deleteProfile($user_id){
+    $sql ="DELETE FROM user_profile WHERE userID = ?";
+    $myQuerry = $this->getConnection()->prepare($sql);
+    return $myQuerry->execute([$user_id]);
 
   }
 }

@@ -12,17 +12,9 @@ class ContentBasedInit {
     $upObj = new UserProfiler();
     $userProfiles = $upObj->getAllUserProfile();
     foreach ($userProfiles as $key => $profile) {
-      $profiles[$profile['userID']] = $profile;
-    }
-    $uObj = new UserController();
-    $Users = $uObj->getAllUser();
-    foreach ($Users as $user) {
-      if(array_key_exists($user['id'],$profiles)){
-        $up = $profiles[$user['id']];
-        $predicted_rating = ContentBasedRecommenderEngine::computeContentBasedPrediction($user['id'],$up);
-        if($predicted_rating !== ""){
-          $recommendations[$user['id']] = $predicted_rating;
-        }
+      $predicted_rating = ContentBasedRecommenderEngine::computeContentBasedPrediction($profile['userID'],$profile);
+      if($predicted_rating !== ""){
+        $recommendations[$profile['userID']] = $predicted_rating;
       }
     }
     $query = 'REPLACE INTO content_based_recommendation VALUES';

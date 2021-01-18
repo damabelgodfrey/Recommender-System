@@ -25,6 +25,8 @@ class UserItemRatingMatrix {
      }
      return $UserRatingMatrix;
  }
+
+
 //transform rating for item based CF
   public static function TransformedMatrix($itemUserRatingMatrix){
     $transposedMatrix = array();
@@ -66,6 +68,7 @@ class UserItemRatingMatrix {
        $NormalisedMatrix[$userID][$itemID]= $rating - $UserMeans[$userID];
      }
     }
+    debugfilewriter($NormalisedMatrix);
     return $NormalisedMatrix;
   }
 

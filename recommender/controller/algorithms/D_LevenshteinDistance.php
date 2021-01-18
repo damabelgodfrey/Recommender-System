@@ -42,7 +42,6 @@ class D_LevenshteinDistance
       }
     }
     $y1 = $distance[$token1StrLen][$token2StrLen];
-    //$y2 = 1/(1+sqrt($y1)); // normaliseed value to [0..1]
     return $y1;
   }
 }

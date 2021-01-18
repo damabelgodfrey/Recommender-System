@@ -1,7 +1,8 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'].'/ecommerce/recommender/Model/Users.php';
 /**
- *
+* Handles all users communication and operations
+* interact with User model class and respond to user request
  */
 
 class UserController extends Users

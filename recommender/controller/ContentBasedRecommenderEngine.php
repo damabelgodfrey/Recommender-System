@@ -54,11 +54,11 @@ class ContentBasedRecommenderEngine
    $stopWord = getStopwordsFromFile();
    $itempObj = new ItemProfiler();
    $itemProfiles = $itempObj->getItemProfile_Brand_Category(); //fetch item profiller info and get secondary info from other tables
-   $user_email =   $_SESSION['user_email'];
    $transObj = new TransactionController();
-   $purchaseItemIDArr = $transObj->getUserTransactions($user_email);
+   $purchaseItemIDArr = $transObj->getUserTransactions($user_id);
    foreach ($itemProfiles as $itemprofile) {
      $itemID =  $itemprofile['itemID'];
+     if($itemID == 67 || $itemID == 85 ||$itemID == 89 ||$itemID == 22 ||$itemID == 21 ||$itemID == 106 ){
      $p2_aveRating =  $itemprofile['average_rating'];
      $itemProfileTokens = json_decode($itemprofile['profile'],true)['tag'];
      $iProfileBrand = preg_replace('/\s+/', '', $itemprofile['brand']);// reove spacing between multiple worded brand
@@ -88,10 +88,12 @@ class ContentBasedRecommenderEngine
        default:
          break;
       }
+      debugfilewriter("\n ".$user_id." item " .$itemID .' => sim '.$result);
      if($result != self::SIMILARITY_THRESHOLD){
        $recommendedArray[$itemID] = to2Decimal($result);
      }
    }
+ } /////testine
  }
 
     if(count($recommendedArray) != 0){

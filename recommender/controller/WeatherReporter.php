@@ -1,7 +1,7 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'].'/ecommerce/recommender/controller/UserController.php';
 /**
- *
+ * Get real-time weather report
  */
 class WeatherReporter
 {

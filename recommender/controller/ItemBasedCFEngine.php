@@ -1,6 +1,5 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'].'/ecommerce/recommender/controller/UserItemRatingMatrix.php';
-require_once $_SERVER['DOCUMENT_ROOT'].'/ecommerce/recommender/controller/ItemFeatureSimComputation.php';
 require_once $_SERVER['DOCUMENT_ROOT'].'/ecommerce/recommender/controller/PredictionController.php';
 require_once $_SERVER['DOCUMENT_ROOT'].'/ecommerce/recommender/controller/algorithms/PearsonCorrelation.php';
 /**
@@ -13,8 +12,8 @@ class ItemBasedCFEngine{
   private static $ItemPeerGroups = array();
   private static $userItemRatingMatrix = array();
   private static $itemUserRatingMatrix = array();
-  const SIMILARITY_ALG = "EuclideanDistance";
-  const SIMILARITY_THESHOLD = 0;
+  const SIMILARITY_ALG = "PearsonCorrelation";
+  const SIMILARITY_THESHOLD = 1;
   // compute Ite based Collaborative filtering
   public static function computeItemBasedCF($user_id, $userItemRatingMatrix,$matrix){
     $prediction = array();
@@ -23,22 +22,25 @@ class ItemBasedCFEngine{
     $userMeanRating = array_sum($userItemRatingMatrix)/count($userItemRatingMatrix);
     foreach ($userItemRatingMatrix as $id => $rating):
       $ItemPeerGroup = self::computeItemSimilarity($id,$matrix);
-      $ItemPeerGroups[$id.'?'.$rating] = array_slice($ItemPeerGroup, 0, 5, true); //pick top 5
+      //remove item already rated by user.
+      $ItemPeerGroups[$id.'?'.$rating] = $ItemPeerGroup;
     endforeach;
     self::$ItemPeerGroups = $ItemPeerGroups;
     $itemPredictionArray = self::computeWeightedRatingprediction($ItemPeerGroups,$userMeanRating);
     $prediction = self::addPredictionToNearestItemNearbors($user_id,$itemPredictionArray);
     arsort($prediction);
-    $prediction = array_slice($prediction, 0, 10, true);
+    $predicted_rating = array();
     foreach ($prediction as $key => $value) {
-      $value = floatval($value);
-      $key = +$key;
-      $predicted_rating[] = array(
-        'product_id'       => $key,
-        'predicted_rating' => $value,
-      );
-    }
-    $prediction = json_encode($predicted_rating);
+      if(!array_key_exists($key,$userItemRatingMatrix)){
+        $value = floatval($value);
+        $key = +$key;
+        $predicted_rating[] = array(
+          'product_id'       => $key,
+          'predicted_rating' => $value,
+        );
+      }
+      }
+      $prediction = json_encode($predicted_rating);
     return $prediction;
   }
   //items as columns and users as rows
@@ -55,6 +57,7 @@ class ItemBasedCFEngine{
         }
       }
       self::$itemUserRatingMatrix = $transposedMatrix;
+    //  debugfilewriter($transposedMatrix);
       return $transposedMatrix;
     }
   }
@@ -81,13 +84,13 @@ class ItemBasedCFEngine{
           break;
 
           case 'AdjustedCosineSim':
-          $similarity = CF_AdjustedCosineSimilarity::conputeF_adjustedCosineSimilarity($transformedItemMatrix,$currentItem,$otherItem);
+          $similarity = CF_AdjustedCosineSimilarity::computeF_adjustedCosineSimilarity($transformedItemMatrix,$currentItem,$otherItem);
           break;
 
           default:
           break;
         }
-        if($similarity > self::SIMILARITY_THESHOLD):
+        if($similarity < self::SIMILARITY_THESHOLD):
           $ItemSim[$otherItem] = $similarity;
         endif;
       endif;
@@ -124,7 +127,6 @@ class ItemBasedCFEngine{
         $itemRatingPredictionArray[$key]= to2Decimal($sum_Sim_rating_product/$simSummation[$key]);
       }
     }
-    //RootMeanSquareEstimation::computeRootMeanSqEst($itemRatingPredictionArray);
     arsort($itemRatingPredictionArray);
     return $itemRatingPredictionArray;
   }
